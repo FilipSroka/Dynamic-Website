@@ -112,7 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
             this.color = getColor();
             this.angle = angle;
             this.radius = Math.random() * (parseFloat(particleSizeSlider.value) - 2) + 2;
-            this.speed = Math.random() * parseFloat(speedVarianceSlider.value) + parseFloat(speedSlider.value) + 0.3;
+            this.speedVariance = Math.random() * parseFloat(speedVarianceSlider.value);
+            this.speed = this.speedVariance + parseFloat(speedSlider.value) + 0.3;
             this.angularVelocity = Math.random() * 0.01 + 0.004;
             this.distance = 0;
             this.lifespan = parseFloat(lifespanSlider.value);
@@ -120,9 +121,10 @@ document.addEventListener("DOMContentLoaded", function () {
             this.shape = getSelectedShape();
             this.opacity = parseFloat(opacitySlider.value);
         }
+        
 
         update() {
-            this.speed = parseFloat(speedSlider.value);
+            this.speed = this.speedVariance + parseFloat(speedSlider.value) + 0.3;
             this.angularVelocity = parseFloat(angularVelocitySlider.value);
             this.radius *= parseFloat(fadingSlider.value);
             this.distance += this.speed * this.pathShape * 3;
@@ -132,6 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
             this.lifespan -= 0.01;
             this.opacity = parseFloat(opacitySlider.value);
         }
+        
 
         draw() {
             ctx.fillStyle = this.color;
