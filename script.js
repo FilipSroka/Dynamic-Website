@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
 
         update() {
-            this.speed = this.speedVariance + parseFloat(speedSlider.value) + 0.3;
+            this.speed = this.speedVariance + parseFloat(speedSlider.value);
             this.angularVelocity = parseFloat(angularVelocitySlider.value);
             this.radius *= parseFloat(fadingSlider.value);
             this.distance += this.speed * this.pathShape * 3;
