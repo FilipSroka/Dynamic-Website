@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
             this.angle = angle;
             this.radius = Math.random() * (parseFloat(particleSizeSlider.value) - 2) + 2;
             this.speedVariance = Math.random() * parseFloat(speedVarianceSlider.value);
-            this.speed = this.speedVariance + parseFloat(speedSlider.value) + 0.3;
+            this.speed = this.speedVariance + parseFloat(speedSlider.value);
             this.angularVelocity = Math.random() * 0.01 + 0.004;
             this.distance = 0;
             this.lifespan = parseFloat(lifespanSlider.value);
