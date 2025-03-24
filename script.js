@@ -27,13 +27,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // Get color pickers and percentage sliders
     const colorInputs = Array.from(document.querySelectorAll("input[type='color']"));
     const colorPercentSliders = Array.from(document.querySelectorAll("input[type='range'][id^='color'][id$='Percent']"));
-    const colorPercentSpans = Array.from(document.querySelectorAll("input[type='range'][id^='color'][id$='Percent'] + span"));
 
     // Ensure canvas resizes properly
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     let particles = [];
+    let globalRotationAngle = 0;  // Initialize the global rotation angle
 
     function normalizeColorPercentages(changedSlider) {
         let total = 0;
@@ -100,10 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         return colorInputs[0].value;
     }
-
-    function getSelectedShape() {
-        return document.querySelector("input[name='shape']:checked").value;
-    }
+    
 
     class Particle {
         constructor(x, y, angle) {
@@ -118,22 +115,106 @@ document.addEventListener("DOMContentLoaded", function () {
             this.distance = 0;
             this.lifespan = parseFloat(lifespanSlider.value);
             this.pathShape = parseFloat(pathShapeSlider.value);
-            this.shape = getSelectedShape();
+            this.shape = document.getElementById("particleShapeDropdown").value;
             this.opacity = parseFloat(opacitySlider.value);
+            this.movementType = document.getElementById('movementTypeSelector').value;
         }
-        
 
         update() {
             this.speed = this.speedVariance + parseFloat(speedSlider.value);
             this.angularVelocity = parseFloat(angularVelocitySlider.value);
             this.radius *= parseFloat(fadingSlider.value);
-            this.distance += this.speed * this.pathShape * 3;
-            this.angle += this.angularVelocity;
-            this.x = canvas.width / 2 + Math.cos(this.angle) * this.distance;
-            this.y = canvas.height / 2 + Math.sin(this.angle) * this.distance;
+        
+            // Set global rotation constant
+            const globalRotationConstant = 0.000001;
+        
+            // Select the movement type based on the dropdown
+            if (this.movementType === 'spiral') {
+                this.distance += this.speed * this.pathShape * 3; // Spiral speed multiplier
+                this.angle += this.angularVelocity;
+                let r = this.distance;
+                this.x = canvas.width / 2 + Math.cos(this.angle) * r;
+                this.y = canvas.height / 2 + Math.sin(this.angle) * r;
+            } else if (this.movementType === 'wave') {
+                this.distance += this.speed * this.pathShape * 3; // Wave speed multiplier
+                this.angle += this.angularVelocity;
+                let r = this.distance * (1 + 0.3 * Math.sin(3 * this.angle) * Math.cos(2 * this.angle));
+                this.x = canvas.width / 2 + Math.cos(this.angle + globalRotationConstant) * r;
+                this.y = canvas.height / 2 + Math.sin(this.angle + globalRotationConstant) * r;
+            } else if (this.movementType === 'butterfly') {
+                this.distance += this.speed * this.pathShape * 1.5; // Butterfly speed multiplier
+                this.angle += this.angularVelocity;
+                let r = (200 + this.distance) * Math.sin(4 * this.angle) * Math.cos(this.angle); // Butterfly curve (with increasing radius)
+                // Rotate butterfly by 180 degrees and center it
+                this.x = canvas.width / 2 - r * Math.cos(this.angle + globalRotationConstant); // Inverted x for 180-degree rotation
+                this.y = canvas.height / 2 - r * Math.sin(this.angle + globalRotationConstant); // Inverted y for 180-degree rotation
+            } else if (this.movementType === 'rose') {
+                this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for rose
+                this.angle += this.angularVelocity;
+                let k = 5; // Number of petals
+                let r = (100 + this.distance) * Math.cos(k * this.angle); // Rose curve equation
+                this.x = canvas.width / 2 + r * Math.cos(this.angle + globalRotationConstant);
+                this.y = canvas.height / 2 + r * Math.sin(this.angle + globalRotationConstant);
+            } else if (this.movementType === 'logarithmicSpiral') {
+                this.distance += this.speed * this.pathShape * 0.1; // Reduced speed for spiral
+                this.angle += this.angularVelocity;
+                let a = 100;
+                let b = 0.15;
+                let r = a * Math.exp(b * this.angle) + this.distance; // Logarithmic spiral equation with increasing radius
+                this.x = canvas.width / 2 + r * Math.cos(this.angle + globalRotationConstant);
+                this.y = canvas.height / 2 + r * Math.sin(this.angle + globalRotationConstant);
+            } else if (this.movementType === 'lemniscate') {
+                this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for lemniscate
+                this.angle += this.angularVelocity;
+                let r = 100 * Math.cos(2 * this.angle); // Lemniscate equation
+                let rScale = this.distance / 50;
+                this.x = canvas.width / 2 + r * rScale * Math.cos(this.angle + globalRotationConstant);
+                this.y = canvas.height / 2 + r * rScale * Math.sin(this.angle + globalRotationConstant);
+            } else if (this.movementType === 'epicycloid') {
+                this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for epicycloid
+                this.angle += this.angularVelocity;
+                let R = 150;
+                let r = 50;
+                let d = 100;
+                let x = (R - r) * Math.cos(this.angle + globalRotationConstant) + d * Math.cos((R - r) / r * this.angle);
+                let y = (R - r) * Math.sin(this.angle + globalRotationConstant) - d * Math.sin((R - r) / r * this.angle);
+                let rScale = this.distance / 50;
+                this.x = canvas.width / 2 + x * rScale;
+                this.y = canvas.height / 2 + y * rScale;
+            } else if (this.movementType === 'hypotrochoid') {
+                this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for hypotrochoid
+                this.angle += this.angularVelocity;
+                let R = 150;
+                let r = 60;
+                let d = 100;
+                let x = (R - r) * Math.cos(this.angle + globalRotationConstant) + d * Math.cos((R - r) / r * this.angle);
+                let y = (R - r) * Math.sin(this.angle + globalRotationConstant) - d * Math.sin((R - r) / r * this.angle);
+                let rScale = this.distance / 50;
+                this.x = canvas.width / 2 + x * rScale;
+                this.y = canvas.height / 2 + y * rScale;
+            } else if (this.movementType === 'figureEight') {
+                this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for figure 8
+                this.angle += this.angularVelocity;
+                let a = 100;
+                let r = a + this.distance; // Radius increases over time
+                let x = r * Math.sin(this.angle + globalRotationConstant);
+                let y = r * Math.sin(2 * this.angle + globalRotationConstant); // Apply global rotation to the path
+                this.x = canvas.width / 2 + x;
+                this.y = canvas.height / 2 + y;
+            }
+        
             this.lifespan -= 0.01;
             this.opacity = parseFloat(opacitySlider.value);
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
 
         draw() {

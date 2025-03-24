@@ -111,20 +111,30 @@
         
 
         <div class="slider-container">
-            <label>Particle Shape</label>
-            <div>
-                <input type="radio" name="shape" id="circleShape" value="circle" checked>
-                <label for="circleShape">Circle</label>
-            </div>
-            <div>
-                <input type="radio" name="shape" id="squareShape" value="square">
-                <label for="squareShape">Square</label>
-            </div>
-            <div>
-                <input type="radio" name="shape" id="triangleShape" value="triangle">
-                <label for="triangleShape">Triangle</label>
-            </div>
+            <label for="particleShapeDropdown">Particle Shape</label>
+            <select id="particleShapeDropdown">
+                <option value="circle" selected>Circle</option>
+                <option value="square">Square</option>
+                <option value="triangle">Triangle</option>
+            </select>
         </div>
+
+        <div class="slider-container">
+            <label for="movementTypeSelector">Movement Type</label>
+            <select id="movementTypeSelector">
+                <option value="spiral">Spiral</option>
+                <option value="wave">Wave</option>
+                <option value="butterfly">Butterfly</option>
+                <option value="rose">Rose</option>
+                <option value="logarithmicSpiral">Logarithmic Spiral</option>
+                <option value="lemniscate">Lemniscate</option>
+                <option value="epicycloid">Epicycloid</option>
+                <option value="hypotrochoid">Hypotrochoid</option>
+                <option value="figureEight">Figure 8</option>
+            </select>
+        </div>
+        
+        
         
 
         <div>

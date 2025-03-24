@@ -22,6 +22,7 @@ canvas {
     background-color: black;
 }
 
+/* Wider controls container */
 .controls {
     position: absolute;
     top: 20px;
@@ -32,21 +33,28 @@ canvas {
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     border-radius: 8px;
+    width: 300px;  /* Increased width */
+    max-width: 100%;  /* Ensure it doesn't go beyond the viewport */
+}
+
+/* Adjust slider container and elements */
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;  /* Ensure sliders fill the container */
 }
 
 .slider {
     margin: 5px;
+    width: 100%;  /* Ensure slider fills the container */
 }
 
+/* Label and span text styling */
 label, span {
     color: black;
 }
 
-.slider-container {
-    display: flex;
-    flex-direction: column;
-}
-
+/* Ensure slider info (percentage display) is well spaced */
 .slider-info {
     display: flex;
     justify-content: space-between;
