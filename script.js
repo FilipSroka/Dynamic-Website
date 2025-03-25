@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", function () {
     canvas.height = window.innerHeight;
 
     let particles = [];
-    let globalRotationAngle = 0;  // Initialize the global rotation angle
 
     function normalizeColorPercentages(changedSlider) {
         let total = 0;
@@ -106,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
         constructor(x, y, angle) {
             this.x = x;
             this.y = y;
-            this.color = getColor();
+            this.color = getColor();  // Fetch the color using getColor() function
             this.angle = angle;
             this.radius = Math.random() * (parseFloat(particleSizeSlider.value) - 2) + 2;
             this.speedVariance = Math.random() * parseFloat(speedVarianceSlider.value);
@@ -118,15 +117,23 @@ document.addEventListener("DOMContentLoaded", function () {
             this.shape = document.getElementById("particleShapeDropdown").value;
             this.opacity = parseFloat(opacitySlider.value);
             this.movementType = document.getElementById('movementTypeSelector').value;
+    
+            // Map the color to the corresponding letter (M, O, D, U, S)
+            const colorMap = ["M", "O", "D", "U", "S"];
+    
+            // Find the index of the particle's color in the colorInputs array and assign the corresponding letter
+            this.letter = "";
+            colorInputs.forEach((input, index) => {
+                if (this.color === input.value) {
+                    this.letter = colorMap[index];  // Map color to letter based on its position
+                }
+            });
         }
 
         update() {
             this.speed = this.speedVariance + parseFloat(speedSlider.value);
             this.angularVelocity = parseFloat(angularVelocitySlider.value);
             this.radius *= parseFloat(fadingSlider.value);
-        
-            // Set global rotation constant
-            const globalRotationConstant = 0.000001;
         
             // Select the movement type based on the dropdown
             if (this.movementType === 'spiral') {
@@ -139,45 +146,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.distance += this.speed * this.pathShape * 3; // Wave speed multiplier
                 this.angle += this.angularVelocity;
                 let r = this.distance * (1 + 0.3 * Math.sin(3 * this.angle) * Math.cos(2 * this.angle));
-                this.x = canvas.width / 2 + Math.cos(this.angle + globalRotationConstant) * r;
-                this.y = canvas.height / 2 + Math.sin(this.angle + globalRotationConstant) * r;
+                this.x = canvas.width / 2 + Math.cos(this.angle) * r;
+                this.y = canvas.height / 2 + Math.sin(this.angle) * r;
             } else if (this.movementType === 'butterfly') {
                 this.distance += this.speed * this.pathShape * 1.5; // Butterfly speed multiplier
                 this.angle += this.angularVelocity;
                 let r = (200 + this.distance) * Math.sin(4 * this.angle) * Math.cos(this.angle); // Butterfly curve (with increasing radius)
                 // Rotate butterfly by 180 degrees and center it
-                this.x = canvas.width / 2 - r * Math.cos(this.angle + globalRotationConstant); // Inverted x for 180-degree rotation
-                this.y = canvas.height / 2 - r * Math.sin(this.angle + globalRotationConstant); // Inverted y for 180-degree rotation
+                this.x = canvas.width / 2 - r * Math.cos(this.angle); // Inverted x for 180-degree rotation
+                this.y = canvas.height / 2 - r * Math.sin(this.angle); // Inverted y for 180-degree rotation
             } else if (this.movementType === 'rose') {
                 this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for rose
                 this.angle += this.angularVelocity;
                 let k = 5; // Number of petals
                 let r = (100 + this.distance) * Math.cos(k * this.angle); // Rose curve equation
-                this.x = canvas.width / 2 + r * Math.cos(this.angle + globalRotationConstant);
-                this.y = canvas.height / 2 + r * Math.sin(this.angle + globalRotationConstant);
+                this.x = canvas.width / 2 + r * Math.cos(this.angle);
+                this.y = canvas.height / 2 + r * Math.sin(this.angle);
             } else if (this.movementType === 'logarithmicSpiral') {
                 this.distance += this.speed * this.pathShape * 0.1; // Reduced speed for spiral
                 this.angle += this.angularVelocity;
                 let a = 100;
                 let b = 0.15;
                 let r = a * Math.exp(b * this.angle) + this.distance; // Logarithmic spiral equation with increasing radius
-                this.x = canvas.width / 2 + r * Math.cos(this.angle + globalRotationConstant);
-                this.y = canvas.height / 2 + r * Math.sin(this.angle + globalRotationConstant);
+                this.x = canvas.width / 2 + r * Math.cos(this.angle);
+                this.y = canvas.height / 2 + r * Math.sin(this.angle);
             } else if (this.movementType === 'lemniscate') {
                 this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for lemniscate
                 this.angle += this.angularVelocity;
                 let r = 100 * Math.cos(2 * this.angle); // Lemniscate equation
                 let rScale = this.distance / 50;
-                this.x = canvas.width / 2 + r * rScale * Math.cos(this.angle + globalRotationConstant);
-                this.y = canvas.height / 2 + r * rScale * Math.sin(this.angle + globalRotationConstant);
+                this.x = canvas.width / 2 + r * rScale * Math.cos(this.angle);
+                this.y = canvas.height / 2 + r * rScale * Math.sin(this.angle);
             } else if (this.movementType === 'epicycloid') {
                 this.distance += this.speed * this.pathShape * 0.5; // Reduced speed for epicycloid
                 this.angle += this.angularVelocity;
                 let R = 150;
                 let r = 50;
                 let d = 100;
-                let x = (R - r) * Math.cos(this.angle + globalRotationConstant) + d * Math.cos((R - r) / r * this.angle);
-                let y = (R - r) * Math.sin(this.angle + globalRotationConstant) - d * Math.sin((R - r) / r * this.angle);
+                let x = (R - r) * Math.cos(this.angle) + d * Math.cos((R - r) / r * this.angle);
+                let y = (R - r) * Math.sin(this.angle) - d * Math.sin((R - r) / r * this.angle);
                 let rScale = this.distance / 50;
                 this.x = canvas.width / 2 + x * rScale;
                 this.y = canvas.height / 2 + y * rScale;
@@ -187,8 +194,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 let R = 150;
                 let r = 60;
                 let d = 100;
-                let x = (R - r) * Math.cos(this.angle + globalRotationConstant) + d * Math.cos((R - r) / r * this.angle);
-                let y = (R - r) * Math.sin(this.angle + globalRotationConstant) - d * Math.sin((R - r) / r * this.angle);
+                let x = (R - r) * Math.cos(this.angle) + d * Math.cos((R - r) / r * this.angle);
+                let y = (R - r) * Math.sin(this.angle) - d * Math.sin((R - r) / r * this.angle);
                 let rScale = this.distance / 50;
                 this.x = canvas.width / 2 + x * rScale;
                 this.y = canvas.height / 2 + y * rScale;
@@ -197,8 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.angle += this.angularVelocity;
                 let a = 100;
                 let r = a + this.distance; // Radius increases over time
-                let x = r * Math.sin(this.angle + globalRotationConstant);
-                let y = r * Math.sin(2 * this.angle + globalRotationConstant); // Apply global rotation to the path
+                let x = r * Math.sin(this.angle);
+                let y = r * Math.sin(2 * this.angle); 
                 this.x = canvas.width / 2 + x;
                 this.y = canvas.height / 2 + y;
             }
@@ -207,20 +214,11 @@ document.addEventListener("DOMContentLoaded", function () {
             this.opacity = parseFloat(opacitySlider.value);
         }
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
         draw() {
             ctx.fillStyle = this.color;
             ctx.globalAlpha = this.opacity;
-
+    
+            // Draw the particle based on its shape
             switch (this.shape) {
                 case "circle":
                     ctx.beginPath();
@@ -238,9 +236,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     ctx.closePath();
                     ctx.fill();
                     break;
+                case "letters":
+                    ctx.font = `${this.radius * 2}px Arial`;  // Font size scales with radius
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(this.letter, this.x, this.y);  // Draw the corresponding letter
+                    break;
             }
+    
             ctx.globalAlpha = 1;
         }
+        
     }
 
     function createParticles() {
